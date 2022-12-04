@@ -225,7 +225,18 @@ class ExpParser {
         var GetContent = GetGetContent(this, root);
 
         if (root.var_name != undefined) {
-            return `<div class="var">${root.var_name}</div>`;
+            function VarDiv(var_name) {
+                var div = "";
+                for (let letter of var_name) {
+                    if (letter == "$") {
+                        div += `<div class="dollar_sign">$</div>`;
+                    } else {
+                        div += letter;
+                    }
+                }
+                return div;
+            }
+            return `<div class="var">${VarDiv(root.var_name)}</div>`;
         }
 
         var op_name = this.op_names[this.operations.indexOf(root.operation)];
@@ -237,11 +248,11 @@ class ExpParser {
 
         if (this.GetArity(root.operation) == 1) {
             return (
-                `<div class="oper, oper_${op_name}">` +
-                `<div class="oper_${op_name}_symbol">` +
+                `<div class="oper oper_${op_name}">` +
+                `<div class="oper_symbol oper_${op_name}_symbol">` +
                 op_symbol +
                 "</div>" +
-                `<div class="oper_${op_name}_right">` +
+                `<div class="oper_right oper_${op_name}_right">` +
                 GetContent(root.right) +
                 "</div>" +
                 "</div>"
@@ -249,14 +260,14 @@ class ExpParser {
         }
 
         return (
-            `<div class="oper, oper_${op_name}">` +
-            `<div class="oper_${op_name}_left">` +
+            `<div class="oper oper_${op_name}">` +
+            `<div class="oper_left oper_${op_name}_left">` +
             GetContent(root.left) +
             `</div>` +
-            `<div class="oper_${op_name}_symbol">` +
+            `<div class="oper_symbol oper_${op_name}_symbol">` +
             op_symbol +
             `</div>` +
-            `<div class="oper_${op_name}_right">` +
+            `<div class="oper_right oper_${op_name}_right">` +
             GetContent(root.right) +
             `</div>` +
             "</div>"
