@@ -1,8 +1,15 @@
 class ExpParser {
     constructor() {
-        this.operations = ["+", "-", "*", "/", "sqrt", "pow", "^"];
-        this.priors = [0, 0, 1, 1, 2, 2, 2];
-        this.arity = [2, 2, 2, 2, 1, 2, 2];
+        this.operations = ["+", "-", "*", "/", "sqrt", "^", "sum", "aver"];
+        this.priors = [0, 0, 1, 1, 2, 2, 2, 2];
+        this.arity = [2, 2, 2, 2, 1, 2, 1, 1];
+        this.convertions = {
+            pow: "^",
+            КОРЕНЬ: "sqrt",
+            СТЕПЕНЬ: "^",
+            СУММ: "sum",
+            СРЗНАЧ: "aver",
+        };
     }
 
     IsOperation(symbol) {
@@ -15,7 +22,17 @@ class ExpParser {
         return this.arity[this.operations.indexOf(symbol)];
     }
 
+    TryToConvert(operation) {
+        if (this.convertions[operation] != undefined) {
+            operation = this.convertions[operation];
+        }
+        return operation;
+    }
+
     ToExp(exp_str) {
+        if (exp_str.charAt(0) == "=") {
+            exp_str = exp_str.slice(1);
+        }
         let exp = [];
 
         let var_name = "";
@@ -36,6 +53,7 @@ class ExpParser {
 
             if (exp_char == "(") {
                 if (var_name != "") {
+                    var_name = this.TryToConvert(var_name);
                     if (this.GetArity(var_name) == 1) {
                         exp.push({
                             operation: var_name,
@@ -94,7 +112,6 @@ class ExpParser {
     WriteTree(root, depth = 0) {
         if (root == undefined) return;
         this.WriteTree(root.right, depth + 1);
-        process.stdout.write("    ".repeat(depth));
         if (root.var_name == undefined) console.log(root.operation);
         else console.log(root.var_name);
         this.WriteTree(root.left, depth + 1);
@@ -139,6 +156,7 @@ class ExpParser {
                 type: "var",
                 left: lh,
                 right: rh,
+                priority: exp[index].priority,
             };
 
             exp.splice(rh_ind, 1, new_el);
@@ -148,10 +166,101 @@ class ExpParser {
             }
             exp.splice(index, 1);
         }
+        this.CountHeight(exp[0]);
         return exp[0];
+    }
+
+    CountHeight(root) {
+        if (root == undefined) {
+            return 0;
+        }
+        root.height =
+            Math.max(
+                this.CountHeight(root.right),
+                this.CountHeight(root.left)
+            ) + 1;
+        return root.height;
+    }
+
+    TreeToHTML(root) {
+        function GetGetContent(instance, root) {
+            var root = root;
+            var instance = instance;
+            return function (node) {
+                var content = instance.TreeToHTML(node);
+                if (
+                    node.var_name != undefined ||
+                    root.operation == "/" ||
+                    node.operation == "^" ||
+                    node.operation == "sqrt"
+                ) {
+                    return content;
+                }
+                if (node.priority > root.priority) {
+                    return `(${content})`;
+                }
+                return content;
+            };
+        }
+
+        var GetContent = GetGetContent(this, root);
+
+        if (root.var_name != undefined) {
+            return `<div class="var">${root.var_name}</div>`;
+        }
+        if (root.operation == "sqrt") {
+            return `V<div class="sqrt">(${this.TreeToHTML(root.right)})</div>`;
+        }
+        if (root.operation == "/") {
+            return (
+                `<div class="fraction">` +
+                GetContent(root.left) +
+                `<hr class="fraction_line">` +
+                GetContent(root.right) +
+                "</div>"
+            );
+        }
+        if (root.operation == "^") {
+            return (
+                `<div class="pow_down">` +
+                GetContent(root.left) +
+                "</div>" +
+                `<div class="pow_up">` +
+                GetContent(root.right) +
+                "</div>"
+            );
+        }
+        if (this.GetArity(root.operation) == 1) {
+            return (
+                `<div class="exp">` +
+                root.operation +
+                GetContent(root.right) +
+                "</div>"
+            );
+        }
+
+        return (
+            `<div class="exp">` +
+            GetContent(root.left) +
+            root.operation +
+            GetContent(root.right) +
+            "</div>"
+        );
     }
 }
 
-var parser = new ExpParser();
-var exp = parser.ToExp("pow(sqrt(1 + pow(2; 3)); 2 * (2 - 2))");
-var tree = parser.TreeFromExp(exp);
+parser = new ExpParser();
+input = document.querySelector("input");
+output = document.querySelector("#exp_answer");
+
+exp = parser.ToExp(input.value);
+tree = parser.TreeFromExp(exp);
+console.log(tree);
+output.innerHTML = parser.TreeToHTML(tree);
+
+input.addEventListener("change", function () {
+    exp = parser.ToExp(input.value);
+    tree = parser.TreeFromExp(exp);
+    console.log(parser.TreeToHTML(tree));
+    output.innerHTML = parser.TreeToHTML(tree);
+});
