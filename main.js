@@ -1,8 +1,8 @@
 class ExpParser {
     constructor() {
-        this.operations = ["+", "-", "*", "/", "sqrt", "pow"];
-        this.priors = [0, 0, 1, 1, 2, 2];
-        this.arity = [2, 2, 2, 2, 1, 2];
+        this.operations = ["+", "-", "*", "/", "sqrt", "pow", "^"];
+        this.priors = [0, 0, 1, 1, 2, 2, 2];
+        this.arity = [2, 2, 2, 2, 1, 2, 2];
     }
 
     IsOperation(symbol) {
@@ -42,11 +42,12 @@ class ExpParser {
                             priority: bracket_depth + this.GetPrior(var_name),
                             type: "operation",
                         });
+                    } else {
+                        op_stack.push({
+                            var_name: var_name,
+                            depth: bracket_depth,
+                        });
                     }
-                    op_stack.push({
-                        var_name: var_name,
-                        depth: bracket_depth,
-                    });
                     var_name = "";
                 }
                 bracket_depth += prior_for_bracket;
@@ -60,17 +61,15 @@ class ExpParser {
             }
 
             if (exp_char == ";") {
-                if (bracket_depth == op_stack[op_stack.length - 1].depth) {
-                    let priority = this.GetPrior(
-                        op_stack[op_stack.length - 1].var_name
-                    );
-                    exp.push({
-                        operation: op_stack.pop().var_name,
-                        priority: bracket_depth + priority,
-                        type: "operation",
-                    });
-                }
                 VarNamePush();
+                let priority = this.GetPrior(
+                    op_stack[op_stack.length - 1].var_name
+                );
+                exp.push({
+                    operation: op_stack.pop().var_name,
+                    priority: bracket_depth - prior_for_bracket + priority,
+                    type: "operation",
+                });
                 continue;
             }
 
@@ -89,17 +88,16 @@ class ExpParser {
             });
         }
         VarNamePush();
-        console.log(exp);
-        this.WriteTree(this.TreeFromExp(exp));
+        return exp;
     }
 
     WriteTree(root, depth = 0) {
         if (root == undefined) return;
-        this.WriteTree(root.left, depth + 1);
+        this.WriteTree(root.right, depth + 1);
         process.stdout.write("    ".repeat(depth));
         if (root.var_name == undefined) console.log(root.operation);
         else console.log(root.var_name);
-        this.WriteTree(root.right, depth + 1);
+        this.WriteTree(root.left, depth + 1);
     }
 
     TreeFromExp(exp) {
@@ -154,4 +152,6 @@ class ExpParser {
     }
 }
 
-new ExpParser().ToExp("pow(3 * (3 + 1); 2)");
+var parser = new ExpParser();
+var exp = parser.ToExp("pow(sqrt(1 + pow(2; 3)); 2 * (2 - 2))");
+var tree = parser.TreeFromExp(exp);
