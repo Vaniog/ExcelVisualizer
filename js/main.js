@@ -279,11 +279,12 @@ parser = new ExpParser();
 input = document.querySelector("input");
 output = document.querySelector("#exp_answer");
 
-exp = parser.ToExp(input.value);
-tree = parser.TreeFromExp(exp);
-console.log(tree);
-output.innerHTML = parser.TreeToHTML(tree);
-
+if (input.value != "") {
+    exp = parser.ToExp(input.value);
+    tree = parser.TreeFromExp(exp);
+    console.log(tree);
+    output.innerHTML = parser.TreeToHTML(tree);
+}
 input.addEventListener("change", function () {
     exp = parser.ToExp(input.value);
     tree = parser.TreeFromExp(exp);

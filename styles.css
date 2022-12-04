@@ -13,12 +13,6 @@ body {
     color: #addbfa;
 }
 
-body {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-}
-
 main {
     display: flex;
     justify-content: center;
@@ -27,26 +21,14 @@ main {
     height: 60%;
 }
 
-header {
-    border: solid black 2px;
-    font-size: 2em;
-    background-color: #252526;
-    box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);
-    padding: 10px;
-    text-transform: uppercase;
-}
-
 .feedback {
+    margin-top: 10%;
     padding: 20px;
-    margin-top: auto;
     border: solid black 2px;
     font-size: 2em;
     background-color: #252526;
-    box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);
-}
-
-.google_link {
-    color: #6f9ad1;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.2);
 }
 
 .converter {
@@ -139,5 +121,4 @@ header {
     display: flex;
     align-items: center;
     font-size: 70%;
-    transform: translateY(0.15em);
 }
