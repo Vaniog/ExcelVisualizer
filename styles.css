@@ -7,6 +7,8 @@ html,
 body {
     height: 100%;
     min-height: 100%;
+    background-color: white;
+    font-family: Oswald, sans-serif;
 }
 
 main {
@@ -41,20 +43,36 @@ div {
     border: solid black 2px;
 }
 
-.fraction {
+.oper_divide {
     display: flex;
     flex-direction: column;
 }
 
-.fraction_line {
-    width: calc(100% - 10px);
+.oper_divide_left {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    border-bottom: solid black 2px;
 }
+
+.oper_divide_symbol {
+    display: none;
+}
+
+
 
 .exp {
     display: flex;
+    font-size: medium;
 }
 
-.pow_up {
+.oper_pow_right {
     align-self: flex-start;
-    font-size: small;
+    --width: 100%;
+    font-size: calc(var(--width) * 0.65);
 }
+
+.oper_pow_symbol {
+    display: none;
+}
+

@@ -10,6 +10,21 @@ class ExpParser {
             СУММ: "sum",
             СРЗНАЧ: "aver",
         };
+        this.pretty_converter = {
+            "*": "·",
+            sqrt: "√",
+            sum: "Σ",
+        };
+        this.op_names = [
+            "plus",
+            "subs",
+            "mult",
+            "divide",
+            "sqrt",
+            "pow",
+            "sum",
+            "average",
+        ];
     }
 
     IsOperation(symbol) {
@@ -97,6 +112,7 @@ class ExpParser {
             }
 
             // exp_char is operation
+            exp_char = this.TryToConvert(exp_char);
             VarNamePush();
 
             exp.push({
@@ -188,6 +204,9 @@ class ExpParser {
             var instance = instance;
             return function (node) {
                 var content = instance.TreeToHTML(node);
+                if (instance.GetArity(root.operation) == 1) {
+                    return `(${content})`;
+                }
                 if (
                     node.var_name != undefined ||
                     root.operation == "/" ||
@@ -208,42 +227,38 @@ class ExpParser {
         if (root.var_name != undefined) {
             return `<div class="var">${root.var_name}</div>`;
         }
-        if (root.operation == "sqrt") {
-            return `V<div class="sqrt">(${this.TreeToHTML(root.right)})</div>`;
+
+        var op_name = this.op_names[this.operations.indexOf(root.operation)];
+
+        var op_symbol = root.operation;
+        if (this.pretty_converter[root.operation] != undefined) {
+            op_symbol = this.pretty_converter[root.operation];
         }
-        if (root.operation == "/") {
-            return (
-                `<div class="fraction">` +
-                GetContent(root.left) +
-                `<hr class="fraction_line">` +
-                GetContent(root.right) +
-                "</div>"
-            );
-        }
-        if (root.operation == "^") {
-            return (
-                `<div class="pow_down">` +
-                GetContent(root.left) +
-                "</div>" +
-                `<div class="pow_up">` +
-                GetContent(root.right) +
-                "</div>"
-            );
-        }
+
         if (this.GetArity(root.operation) == 1) {
             return (
-                `<div class="exp">` +
-                root.operation +
+                `<div class="oper, oper_${op_name}">` +
+                `<div class="oper_${op_name}_symbol">` +
+                op_symbol +
+                "</div>" +
+                `<div class="oper_${op_name}_right">` +
                 GetContent(root.right) +
+                "</div>" +
                 "</div>"
             );
         }
 
         return (
-            `<div class="exp">` +
+            `<div class="oper, oper_${op_name}">` +
+            `<div class="oper_${op_name}_left">` +
             GetContent(root.left) +
-            root.operation +
+            `</div>` +
+            `<div class="oper_${op_name}_symbol">` +
+            op_symbol +
+            `</div>` +
+            `<div class="oper_${op_name}_right">` +
             GetContent(root.right) +
+            `</div>` +
             "</div>"
         );
     }
