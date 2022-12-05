@@ -205,7 +205,15 @@ class ExpParser {
             return function (node) {
                 var content = instance.TreeToHTML(node);
                 if (instance.GetArity(root.operation) == 1) {
-                    return `(${content})`;
+                    var op_name =
+                        instance.op_names[
+                            instance.operations.indexOf(node.operation)
+                        ];
+
+                    var bracket_open = `<div class="bracket bracket_${op_name} bracket_open bracket_${op_name}_open">(</div>`;
+                    var bracket_close = `<div class="bracket bracket_${op_name} bracket_close bracket_${op_name}_close">)</div>`;
+
+                    return `${bracket_open}${content}${bracket_close}`;
                 }
                 if (
                     node.var_name != undefined ||
@@ -216,7 +224,15 @@ class ExpParser {
                     return content;
                 }
                 if (node.priority > root.priority) {
-                    return `(${content})`;
+                    var op_name =
+                        instance.op_names[
+                            instance.operations.indexOf(node.operation)
+                        ];
+
+                    var bracket_open = `<div class="bracket bracket_${op_name} bracket_open bracket_${op_name}_open">(</div>`;
+                    var bracket_close = `<div class="bracket bracket_${op_name} bracket_close bracket_${op_name}_close">)</div>`;
+
+                    return `${bracket_open}${content}${bracket_close}`;
                 }
                 return content;
             };
