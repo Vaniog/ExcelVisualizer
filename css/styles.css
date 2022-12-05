@@ -28,6 +28,9 @@ main {
 }
 
 header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     border: solid black 2px;
     font-size: 2em;
     background-color: #252526;
@@ -36,13 +39,22 @@ header {
     text-transform: uppercase;
 }
 
-.feedback {
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
     padding: 20px;
     margin-top: auto;
     border: solid black 2px;
     font-size: 2em;
     background-color: #252526;
     box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);
+}
+
+.github_link {
+    height: 1em;
+    margin-right: 1em;
 }
 
 .google_link {
