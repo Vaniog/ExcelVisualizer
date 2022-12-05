@@ -106,6 +106,7 @@ header {
 .oper_divide {
     display: flex;
     flex-direction: column;
+    justify-content: center;
 }
 
 .oper_divide_left {
@@ -113,6 +114,10 @@ header {
     justify-content: center;
     width: 100%;
     border-bottom: solid #addbfa 2px;
+}
+
+.oper_divide_right {
+    margin-top: -0.1em;
 }
 
 .oper_divide_symbol {
@@ -132,7 +137,9 @@ header {
 .var {
     display: flex;
     flex-direction: row;
+    align-items: center;
     font-weight: 400;
+    padding: 0px 3px;
 }
 
 .dollar_sign {
