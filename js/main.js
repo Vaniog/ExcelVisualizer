@@ -1,42 +1,83 @@
+var OpGet = {
+    op_names: {
+        "+": "plus",
+        "-": "minus",
+        "*": "mult",
+        "/": "divide",
+        sqrt: "sqrt",
+        КОРЕНЬ: "sqrt",
+        "^": "pow",
+        СТЕПЕНЬ: "pow",
+        sum: "sum",
+        СУММ: "sum",
+        aver: "aver",
+        СРЗНАЧ: "aver",
+    },
+
+    priors: {
+        plus: 0,
+        minus: 0,
+        mult: 1,
+        divide: 1,
+        sqrt: 2,
+        pow: 2,
+        sum: 2,
+        aver: 2,
+    },
+
+    arities: {
+        plus: 2,
+        minus: 2,
+        mult: 2,
+        divide: 2,
+        sqrt: 1,
+        pow: 2,
+        sum: 1,
+        aver: 1,
+    },
+
+    pretties: {
+        plus: "+",
+        minus: "-",
+        mult: "·",
+        divide: "/",
+        sqrt: "√",
+        pow: "",
+        sum: "Σ",
+        aver: "aver",
+    },
+
+    TryConvert: function (val, arr) {
+        if (arr[val] != undefined) return arr[val];
+        return val;
+    },
+
+    GetArity: function (val) {
+        return this.TryConvert(val, this.arities);
+    },
+    GetPrior: function (val) {
+        return this.TryConvert(val, this.priors);
+    },
+    IsOperation: function (symbol) {
+        return this.op_names[symbol] != undefined;
+    },
+};
+
+class Operation {
+    constructor(op, bracket_depth = 0) {
+        function TryConvert(val, arr) {
+            if (arr[val] != undefined) return arr[val];
+            return val;
+        }
+        this.type = "operation";
+        this.op_name = TryConvert(op, OpGet.op_names);
+        this.priority = TryConvert(this.op_name, OpGet.priors) + bracket_depth;
+        this.arity = TryConvert(this.op_name, OpGet.arities);
+        this.pretty = TryConvert(this.op_name, OpGet.pretties);
+    }
+}
+
 class ExpParser {
-    constructor() {
-        this.operations = ["+", "-", "*", "/", "sqrt", "^", "sum", "aver"];
-        this.priors = [0, 0, 1, 1, 2, 2, 2, 2];
-        this.arity = [2, 2, 2, 2, 1, 2, 1, 1];
-        this.convertions = {
-            pow: "^",
-            КОРЕНЬ: "sqrt",
-            СТЕПЕНЬ: "^",
-            СУММ: "sum",
-            СРЗНАЧ: "aver",
-        };
-        this.pretty_converter = {
-            "*": "·",
-            sqrt: "√",
-            sum: "Σ",
-        };
-        this.op_names = [
-            "plus",
-            "subs",
-            "mult",
-            "divide",
-            "sqrt",
-            "pow",
-            "sum",
-            "average",
-        ];
-    }
-
-    IsOperation(symbol) {
-        return this.operations.includes(symbol);
-    }
-    GetPrior(symbol) {
-        return this.priors[this.operations.indexOf(symbol)];
-    }
-    GetArity(symbol) {
-        return this.arity[this.operations.indexOf(symbol)];
-    }
-
     TryToConvert(operation) {
         if (this.convertions[operation] != undefined) {
             operation = this.convertions[operation];
@@ -68,13 +109,9 @@ class ExpParser {
 
             if (exp_char == "(") {
                 if (var_name != "") {
-                    var_name = this.TryToConvert(var_name);
-                    if (this.GetArity(var_name) == 1) {
-                        exp.push({
-                            operation: var_name,
-                            priority: bracket_depth + this.GetPrior(var_name),
-                            type: "operation",
-                        });
+                    var new_op = new Operation(var_name, bracket_depth);
+                    if (new_op.arity == 1) {
+                        exp.push(new_op);
                     } else {
                         op_stack.push({
                             var_name: var_name,
@@ -95,31 +132,27 @@ class ExpParser {
 
             if (exp_char == ";") {
                 VarNamePush();
-                let priority = this.GetPrior(
+                let priority = OpGet.GetPrior(
                     op_stack[op_stack.length - 1].var_name
                 );
-                exp.push({
-                    operation: op_stack.pop().var_name,
-                    priority: bracket_depth - prior_for_bracket + priority,
-                    type: "operation",
-                });
+                exp.push(
+                    new Operation(
+                        op_stack.pop().var_name,
+                        bracket_depth - prior_for_bracket
+                    )
+                );
                 continue;
             }
 
-            if (!this.IsOperation(exp_char)) {
+            if (!OpGet.IsOperation(exp_char)) {
                 var_name += exp_char;
                 continue;
             }
 
             // exp_char is operation
-            exp_char = this.TryToConvert(exp_char);
             VarNamePush();
 
-            exp.push({
-                operation: exp_char,
-                priority: bracket_depth + this.GetPrior(exp_char),
-                type: "operation",
-            });
+            exp.push(new Operation(exp_char, bracket_depth));
         }
         VarNamePush();
         return exp;
@@ -149,7 +182,7 @@ class ExpParser {
             let lh = undefined;
             let lh_ind = -1;
 
-            if (this.GetArity(exp[index].operation) != 1) {
+            if (exp[index].arity != 1) {
                 for (let i = index; i >= 0; i--) {
                     if (exp[i].type == "var") {
                         lh = exp[i];
@@ -168,11 +201,10 @@ class ExpParser {
             }
 
             var new_el = {
-                operation: exp[index].operation,
+                operation: exp[index],
                 type: "var",
                 left: lh,
                 right: rh,
-                priority: exp[index].priority,
             };
 
             exp.splice(rh_ind, 1, new_el);
@@ -204,11 +236,8 @@ class ExpParser {
             var instance = instance;
             return function (node) {
                 var content = instance.TreeToHTML(node);
-                if (instance.GetArity(root.operation) == 1) {
-                    var op_name =
-                        instance.op_names[
-                            instance.operations.indexOf(node.operation)
-                        ];
+                if (root.operation.arity == 1) {
+                    var op_name = node.operation.op_name;
 
                     var bracket_open = `<div class="bracket bracket_${op_name} bracket_open bracket_${op_name}_open">(</div>`;
                     var bracket_close = `<div class="bracket bracket_${op_name} bracket_close bracket_${op_name}_close">)</div>`;
@@ -217,17 +246,14 @@ class ExpParser {
                 }
                 if (
                     node.var_name != undefined ||
-                    root.operation == "/" ||
-                    node.operation == "^" ||
-                    node.operation == "sqrt"
+                    root.operation.op_name == "divide" ||
+                    node.operation.op_name == "pow" ||
+                    node.operation.op_name == "sqrt"
                 ) {
                     return content;
                 }
-                if (node.priority > root.priority) {
-                    var op_name =
-                        instance.op_names[
-                            instance.operations.indexOf(node.operation)
-                        ];
+                if (node.operation.priority > root.operation.priority) {
+                    var op_name = node.operation.op_name;
 
                     var bracket_open = `<div class="bracket bracket_${op_name} bracket_open bracket_${op_name}_open">(</div>`;
                     var bracket_close = `<div class="bracket bracket_${op_name} bracket_close bracket_${op_name}_close">)</div>`;
@@ -255,14 +281,10 @@ class ExpParser {
             return `<div class="var">${VarDiv(root.var_name)}</div>`;
         }
 
-        var op_name = this.op_names[this.operations.indexOf(root.operation)];
+        var op_name = root.operation.op_name;
+        var op_symbol = root.operation.pretty;
 
-        var op_symbol = root.operation;
-        if (this.pretty_converter[root.operation] != undefined) {
-            op_symbol = this.pretty_converter[root.operation];
-        }
-
-        if (this.GetArity(root.operation) == 1) {
+        if (root.operation.arity == 1) {
             return (
                 `<div class="oper oper_${op_name}">` +
                 `<div class="oper_symbol oper_${op_name}_symbol">` +
