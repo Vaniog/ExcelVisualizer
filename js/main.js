@@ -110,7 +110,7 @@ class ExpParser {
             if (exp_char == "(") {
                 if (var_name != "") {
                     var new_op = new Operation(var_name, bracket_depth);
-                    if (new_op.arity == 1) {
+                    if (new_op.arity == 1 || new_op.arity == undefined) {
                         exp.push(new_op);
                     } else {
                         op_stack.push({
@@ -236,6 +236,7 @@ class ExpParser {
             var instance = instance;
             return function (node) {
                 var content = instance.TreeToHTML(node);
+                if (node.operation == undefined) return content;
                 if (root.operation.arity == 1) {
                     var op_name = node.operation.op_name;
 
