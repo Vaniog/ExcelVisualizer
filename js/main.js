@@ -335,5 +335,5 @@ input.addEventListener("change", function () {
 example_btn.addEventListener("click", function () {
     input.value =
         "=R16 * КОРЕНЬ(СТЕПЕНЬ($K9 / $L9;2) + СТЕПЕНЬ($I$3/$I$2;2) + СТЕПЕНЬ(R11 /($O$2 - R10);2))";
-    input.dispatchEvent(new Event("change"));
+    input.dispatchEvent(new Event(" change"));
 });

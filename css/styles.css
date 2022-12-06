@@ -56,7 +56,6 @@ header {
     transform: scale(0.98);
 }
 
-
 .footer {
     display: flex;
     align-items: center;
@@ -81,6 +80,7 @@ header {
 
 .github_link_img {
     height: 1em;
+    border-radius: 50%;
 }
 
 .github_link_img:hover {
