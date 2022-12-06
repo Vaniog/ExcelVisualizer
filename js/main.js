@@ -20,9 +20,9 @@ var OpGet = {
         mult: 1,
         divide: 1,
         sqrt: 2,
-        pow: 2,
-        sum: 2,
-        aver: 2,
+        pow: 3,
+        sum: 3,
+        aver: 3,
     },
 
     arities: {
@@ -170,7 +170,7 @@ class ExpParser {
         while (exp.length != 1) {
             var to_do = { priority: -1, index: -1 };
             for (let i = exp.length - 1; i >= 0; i--) {
-                if (exp[i].type == "var" || exp[i].priority < to_do.priority)
+                if (exp[i].type == "var" || exp[i].priority <= to_do.priority)
                     continue;
 
                 (to_do.index = i), (to_do.priority = exp[i].priority);
@@ -316,6 +316,7 @@ class ExpParser {
 parser = new ExpParser();
 input = document.querySelector("input");
 output = document.querySelector("#exp_answer");
+example_btn = document.querySelector("#example_btn");
 
 if (input.value != "") {
     exp = parser.ToExp(input.value);
@@ -323,9 +324,16 @@ if (input.value != "") {
     console.log(tree);
     output.innerHTML = parser.TreeToHTML(tree);
 }
+
 input.addEventListener("change", function () {
     exp = parser.ToExp(input.value);
     tree = parser.TreeFromExp(exp);
     console.log(parser.TreeToHTML(tree));
     output.innerHTML = parser.TreeToHTML(tree);
+});
+
+example_btn.addEventListener("click", function () {
+    input.value =
+        "=R16 * КОРЕНЬ(СТЕПЕНЬ($K9 / $L9;2) + СТЕПЕНЬ($I$3/$I$2;2) + СТЕПЕНЬ(R11 /($O$2 - R10);2))";
+    input.dispatchEvent(new Event("change"));
 });

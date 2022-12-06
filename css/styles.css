@@ -39,6 +39,24 @@ header {
     text-transform: uppercase;
 }
 
+#example_btn {
+    padding: 6px 40px;
+    background-color: #3a6297;
+    border: none;
+    color: #dddddd;
+    border-radius: 5px;
+}
+
+#example_btn:hover {
+    background-color: #4676b5;
+    cursor: pointer;
+}
+
+#example_btn:active {
+    transform: scale(0.98);
+}
+
+
 .footer {
     display: flex;
     align-items: center;
@@ -53,12 +71,30 @@ header {
 }
 
 .github_link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
     height: 1em;
     margin-right: 1em;
 }
 
-.google_link {
+.github_link_img {
+    height: 1em;
+}
+
+.github_link_img:hover {
+    box-shadow: 0px 0px 5px 1px #ffffff;
+}
+
+.feedback_link {
+    align-items: center;
     color: #6f9ad1;
+    text-decoration: none;
+}
+
+.feedback_link:hover {
+    color: #8fbcf3;
 }
 
 .converter {
@@ -88,8 +124,9 @@ header {
 }
 
 #exp_answer {
+    height: auto;
     margin-top: 10%;
-    padding: 20px;
+    padding: 30px 20px;
     border: solid black 2px;
     font-size: 2em;
     background-color: #252526;
@@ -136,10 +173,17 @@ header {
     display: none;
 }
 
+.oper_pow {
+    height: 100%;
+    align-items: stretch;
+}
+
 .oper_pow_right {
-    align-self: flex-start;
     --width: 100%;
     font-size: calc(var(--width) * 0.65);
+    height: fit-content;
+    --height: 100%;
+    transform: translateY(calc(var(--height) * -0.1));
     margin-left: -3px;
 }
 
