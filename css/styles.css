@@ -44,6 +44,7 @@ header {
 }
 
 #example_btn:hover {
+    transform: scale(0.99);
     background-color: #e0e0e0;
     cursor: pointer;
 }
@@ -121,10 +122,13 @@ main {
 .github_link_img {
     height: 1em;
     border-radius: 50%;
+    transition-property: box-shadow;
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
 }
 
 .github_link_img:hover {
-    box-shadow: 0px 0px 5px 1px #eeeeee;
+    box-shadow: 0px 0px 5px 2px #eeeeee;
 }
 
 .feedback_link {
