@@ -319,7 +319,7 @@ class ExpParser {
 }
 
 parser = new ExpParser();
-input = document.querySelector("input");
+input = document.querySelector("#exp_input");
 output = document.querySelector("#exp_answer");
 example_btn = document.querySelector("#example_btn");
 
