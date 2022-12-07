@@ -5,17 +5,15 @@ var OpGet = {
         "*": "mult",
         "/": "divide",
         sqrt: "sqrt",
-        КОРЕНЬ: "sqrt",
-        SQRT: "sqrt",
+        корень: "sqrt",
         "^": "pow",
-        СТЕПЕНЬ: "pow",
-        POW: "pow",
+        степень: "pow",
+        pow: "pow",
         sum: "sum",
-        SUM: "sum",
-        СУММ: "sum",
+        сумм: "sum",
         aver: "aver",
-        AVERAGE: "aver",
-        СРЗНАЧ: "aver",
+        average: "aver",
+        срзнач: "aver",
     },
 
     priors: {
@@ -52,6 +50,7 @@ var OpGet = {
     },
 
     TryConvert: function (val, arr) {
+        val = val.toLowerCase();
         if (arr[val] != undefined) return arr[val];
         return val;
     },
@@ -70,6 +69,7 @@ var OpGet = {
 class Operation {
     constructor(op, bracket_depth = 0) {
         function TryConvert(val, arr) {
+            val = val.toLowerCase();
             if (arr[val] != undefined) return arr[val];
             return val;
         }
@@ -339,6 +339,6 @@ input.addEventListener("change", function () {
 
 example_btn.addEventListener("click", function () {
     input.value =
-        "=R16 * КОРЕНЬ(СТЕПЕНЬ($K9 / $L9;2) + СТЕПЕНЬ($I$3/$I$2;2) + СТЕПЕНЬ(R11 /($O$2 - R10);2))";
+        "=R16 * SQRT(POW($K9 / $L9;2) + POW($I$3/$I$2;2) + POW(R11 /($O$2 - R10);2))";
     input.dispatchEvent(new Event("change"));
 });
