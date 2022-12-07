@@ -76,6 +76,7 @@ class Operation {
         this.type = "operation";
         this.op_name = TryConvert(op, OpGet.op_names);
         this.priority = TryConvert(this.op_name, OpGet.priors) + bracket_depth;
+        this.default_priority = TryConvert(this.op_name, OpGet.priors);
         this.arity = TryConvert(this.op_name, OpGet.arities);
         this.pretty = TryConvert(this.op_name, OpGet.pretties);
     }
@@ -136,9 +137,6 @@ class ExpParser {
 
             if (exp_char == ";") {
                 VarNamePush();
-                let priority = OpGet.GetPrior(
-                    op_stack[op_stack.length - 1].var_name
-                );
                 exp.push(
                     new Operation(
                         op_stack.pop().var_name,
@@ -218,20 +216,38 @@ class ExpParser {
             }
             exp.splice(index, 1);
         }
-        this.CountHeight(exp[0]);
+        this.CountBrackets(exp[0]);
         return exp[0];
     }
 
-    CountHeight(root) {
+    CountBrackets(root, parent) {
         if (root == undefined) {
-            return 0;
+            return 1;
         }
-        root.height =
-            Math.max(
-                this.CountHeight(root.right),
-                this.CountHeight(root.left)
-            ) + 1;
-        return root.height;
+        root.brackets_size = 0;
+        if (root.var_name != undefined) {
+            root.brackets = false;
+            return 1;
+        }
+        let cur_priority = root.operation.default_priority;
+        if (root.operation.op_name == "divide") {
+            root.brackets_size++;
+        }
+        if (
+            parent != undefined &&
+            cur_priority < parent.operation.default_priority &&
+            parent.operation.op_name != "divide"
+        ) {
+            root.brackets = true;
+        } else {
+            root.brackets = false;
+        }
+
+        root.brackets_size += Math.max(
+            this.CountBrackets(root.right, root),
+            this.CountBrackets(root.left, root)
+        );
+        return root.brackets_size;
     }
 
     TreeToHTML(root) {
@@ -240,32 +256,25 @@ class ExpParser {
             var instance = instance;
             return function (node) {
                 var content = instance.TreeToHTML(node);
+
                 if (node.operation == undefined) return content;
+
+                var op_name = node.operation.op_name;
+                var bracket_style = `style="font-size:${
+                    node.brackets_size * 1.3
+                }em;"`;
+                var bracket_open = `<div class="bracket bracket_${op_name} bracket_open bracket_${op_name}_open" ${bracket_style}>(</div>`;
+                var bracket_close = `<div class="bracket bracket_${op_name} bracket_close bracket_${op_name}_close" ${bracket_style}>)</div>`;
+
                 if (root.operation.arity == 1) {
-                    var op_name = node.operation.op_name;
-
-                    var bracket_open = `<div class="bracket bracket_${op_name} bracket_open bracket_${op_name}_open">(</div>`;
-                    var bracket_close = `<div class="bracket bracket_${op_name} bracket_close bracket_${op_name}_close">)</div>`;
-
                     return `${bracket_open}${content}${bracket_close}`;
                 }
-                if (
-                    node.var_name != undefined ||
-                    root.operation.op_name == "divide" ||
-                    node.operation.op_name == "pow" ||
-                    node.operation.op_name == "sqrt"
-                ) {
+
+                if (node.brackets) {
+                    return `${bracket_open}${content}${bracket_close}`;
+                } else {
                     return content;
                 }
-                if (node.operation.priority > root.operation.priority) {
-                    var op_name = node.operation.op_name;
-
-                    var bracket_open = `<div class="bracket bracket_${op_name} bracket_open bracket_${op_name}_open">(</div>`;
-                    var bracket_close = `<div class="bracket bracket_${op_name} bracket_close bracket_${op_name}_close">)</div>`;
-
-                    return `${bracket_open}${content}${bracket_close}`;
-                }
-                return content;
             };
         }
 

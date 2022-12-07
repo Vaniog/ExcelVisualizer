@@ -213,11 +213,6 @@ main {
     transform: translateY(0.15em);
 }
 
-.bracket_sqrt {
-    font-size: 2em;
-}
-
-.bracket_divide {
+.bracket {
     font-weight: 100;
-    font-size: 2em;
 }
