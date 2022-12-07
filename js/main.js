@@ -256,7 +256,6 @@ class ExpParser {
             var instance = instance;
             return function (node) {
                 var content = instance.TreeToHTML(node);
-
                 if (node.operation == undefined) return content;
 
                 var op_name = node.operation.op_name;
@@ -301,7 +300,8 @@ class ExpParser {
         if (root.operation.arity == 1) {
             return (
                 `<div class="oper oper_${op_name}">` +
-                `<div class="oper_symbol oper_${op_name}_symbol">` +
+                `<div class="oper_symbol oper_${op_name}_symbol"
+                style="font-size:${root.brackets_size}em;line-height:0;">` +
                 op_symbol +
                 "</div>" +
                 `<div class="oper_right oper_${op_name}_right">` +
