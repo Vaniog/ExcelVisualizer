@@ -260,9 +260,9 @@ class ExpParser {
                 if (node.operation == undefined) return content;
 
                 var op_name = node.operation.op_name;
-                var bracket_style = `style="font-size:${
-                    node.brackets_size * 1.3
-                }em;"`;
+                var bracket_style = `style="
+                font-size:${node.brackets_size * 1.3}em;
+                line-height:0;"`;
                 var bracket_open = `<div class="bracket bracket_${op_name} bracket_open bracket_${op_name}_open" ${bracket_style}>(</div>`;
                 var bracket_close = `<div class="bracket bracket_${op_name} bracket_close bracket_${op_name}_close" ${bracket_style}>)</div>`;
 
