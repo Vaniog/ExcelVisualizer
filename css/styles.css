@@ -165,7 +165,7 @@ main {
     display: flex;
     justify-content: center;
     width: 100%;
-    border-bottom: solid black 2px;
+    border-bottom: solid black 0.3vh;
 }
 
 .oper_divide_right {
